@@ -4,7 +4,6 @@ from django.conf import settings
 from django.db.models.signals import post_save, pre_save, pre_delete
 from django.db.models import Avg, Count, Q, Sum
 from django.utils import timezone
-from django_mysql.models import ListCharField, ListTextField
 from django.db.models import IntegerField, SmallIntegerField
 from django.utils.translation import ugettext_lazy as _ 
 

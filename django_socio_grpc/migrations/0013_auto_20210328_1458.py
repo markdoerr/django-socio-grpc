@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_grpc_framework', '0012_grcpprotobuffields'),
+        ('django_socio_grpc', '0012_grcpprotobuffields'),
     ]
 
     operations = [
@@ -19,11 +19,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='grcpprotobuffields',
             name='database',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_grpc_framework.grcpDataBases', verbose_name='Microservice Database'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_socio_grpc.grcpDataBases', verbose_name='Microservice Database'),
         ),
         migrations.AlterField(
             model_name='grcpprotobuffields',
             name='protobuf',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_grpc_framework.grcpProtoBuf', verbose_name='Microservice Protobuf'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_socio_grpc.grcpProtoBuf', verbose_name='Microservice Protobuf'),
         ),
     ]

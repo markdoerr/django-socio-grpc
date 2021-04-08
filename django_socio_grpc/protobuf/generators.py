@@ -43,7 +43,7 @@ class ModelProtoGenerator:
         """
         Check init paramaters
         """
-        from utils.utils import getAppList
+        from django_socio_grpc.utils.utils import getAppList
         
         self.fieldsReference = []
         self.dataBaseObject  = None
@@ -82,8 +82,8 @@ class ModelProtoGenerator:
         """
         Generator the protobuf file
         """
-        from django_grpc_framework.models import grcpDataBases, grcpProtoBuf, grcpProtoBufFields
-        from utils.utils import getModel, getAppList
+        from django_socio_grpc.models import grcpDataBases, grcpProtoBuf, grcpProtoBufFields
+        from django_socio_grpc.utils.utils import getModel, getAppList
         
         self._writer.write_line('syntax = "proto3";')
         self._writer.write_line('')

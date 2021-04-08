@@ -1,9 +1,9 @@
-from django_grpc_framework.settings import GRPC_CHANNEL_PORT
+from django_socio_grpc.settings import GRPC_CHANNEL_PORT
 import grpc
 import importlib
-from django_grpc_framework.models import grcpMicroServices, grcpDataBases, grcpProtoBufFields, grpcMethod
-from utils.utils import getElapse
-from django_grpc_framework.log import handlers
+from django_socio_grpc.models import grcpMicroServices, grcpDataBases, grcpProtoBufFields, grpcMethod
+from django_socio_grpc.utils.utils import getElapse
+from django_socio_grpc.log import handlers
 import logging
 from django.conf import settings
 
@@ -15,8 +15,8 @@ class grpcClient():
 	
 	def __init__(self, service, method='List', channel='50051', debug=True, value=None, logger=settings.LOGGING_SUPPORT['client']):
 		
-		from utils.utils import getFromChoices
-		from django_grpc_framework.models import socioGrpcErrors
+		from django_socio_grpc.utils.utils import getFromChoices
+		from django_socio_grpc.models import socioGrpcErrors
 		
 		self._statusGRPC        = True
 		self._resultGRPC        = None
@@ -302,8 +302,8 @@ class grpcClient():
 		"""
 		common error processing 
 		"""
-		from django_grpc_framework.models import grcpErrorCode, socioGrpcErrors
-		from utils.utils import ConvChoicesToDic, getFromChoices
+		from django_socio_grpc.models import grcpErrorCode, socioGrpcErrors
+		from django_socio_grpc.utils.utils import ConvChoicesToDic, getFromChoices
 		
 		isCustom = True
 		errorDetails = ''
@@ -373,8 +373,8 @@ class grpcClient():
 		"""
 		common LOGGING processing 
 		"""
-		from utils.utils import ConvChoicesToDic, getFromChoices
-		from django_grpc_framework.models import grpcLogging, socioGrpcErrors
+		from django_socio_grpc.utils.utils import ConvChoicesToDic, getFromChoices
+		from django_socio_grpc.models import grpcLogging, socioGrpcErrors
 		
 		
 		self.endTime = getElapse(mode='end', startTime=self.startTime)

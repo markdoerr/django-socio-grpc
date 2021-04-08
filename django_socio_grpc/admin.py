@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django_grpc_framework.models import *
+from django_socio_grpc.models import *
 
 
 class grcpErrorCodeAdmin(admin.ModelAdmin):

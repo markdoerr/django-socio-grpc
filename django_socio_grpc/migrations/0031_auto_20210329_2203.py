@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_grpc_framework', '0030_auto_20210329_1549'),
+        ('django_socio_grpc', '0030_auto_20210329_1549'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='grcpdatabases',
             name='django',
-            field=models.CharField(choices=[('django.contrib.admin', 'Administration'), ('django.contrib.auth', 'Authentication and Authorization'), ('django.contrib.contenttypes', 'Content Types'), ('django.contrib.sessions', 'Sessions'), ('django.contrib.messages', 'Messages'), ('django.contrib.staticfiles', 'Static Files'), ('django_grpc_framework', 'Django_Grpc_Framework'), ('fcm_django', 'FCM Django'), ('carcheck', 'Carcheck'), ('notification', 'Notification'), ('user', 'User'), ('utils', 'Utils')], db_index=True, default='', max_length=40, verbose_name='Django Application'),
+            field=models.CharField(choices=[('django.contrib.admin', 'Administration'), ('django.contrib.auth', 'Authentication and Authorization'), ('django.contrib.contenttypes', 'Content Types'), ('django.contrib.sessions', 'Sessions'), ('django.contrib.messages', 'Messages'), ('django.contrib.staticfiles', 'Static Files'), ('django_socio_grpc', 'django_socio_grpc'), ('fcm_django', 'FCM Django'), ('carcheck', 'Carcheck'), ('notification', 'Notification'), ('user', 'User'), ('utils', 'Utils')], db_index=True, default='', max_length=40, verbose_name='Django Application'),
         ),
         migrations.AlterField(
             model_name='sociogrpcerrors',

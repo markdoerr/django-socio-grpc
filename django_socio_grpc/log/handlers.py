@@ -1,14 +1,14 @@
 from logging import Handler
 from django.utils import timezone
 import json, datetime, random
-from utils.utils import getFromChoices
+from django_socio_grpc.utils.utils import getFromChoices
 
 
 def prepareLoggingClient(port='', service='', database='', method='', level='', elapse=0, error=0, reason=''):
 	"""
 	prepare Client Logging
-	service      = models.ForeignKey('django_grpc_framework.grcpMicroServices', null=True, blank=True, on_delete=models.CASCADE, verbose_name="Socotec Microservice", related_name='grpc_microservice')    
-	database     = models.ForeignKey('django_grpc_framework.grcpDataBases', null=True, blank=True, on_delete=models.CASCADE, verbose_name="Database Microservice", related_name="grpc_database")    
+	service      = models.ForeignKey('django_socio_grpc.grcpMicroServices', null=True, blank=True, on_delete=models.CASCADE, verbose_name="Socotec Microservice", related_name='grpc_microservice')    
+	database     = models.ForeignKey('django_socio_grpc.grcpDataBases', null=True, blank=True, on_delete=models.CASCADE, verbose_name="Database Microservice", related_name="grpc_database")    
 	method       = models.IntegerField(default=0, choices=CALL_TYPE)
 	level        = models.IntegerField(default=0, choices=LOG_LEVEL, verbose_name="Log Level")
 	query        = models.TextField(default='', null=True, blank=True)
@@ -47,8 +47,8 @@ class DBHandler(Handler,object):
 		self.expiry = int(expiry)
 
 	def emit(self,record):
-		from django_grpc_framework.models import socioGrpcErrors, grpcLogging
-		from utils.utils import getModel
+		from django_socio_grpc.models import socioGrpcErrors, grpcLogging
+		from django_socio_grpc.utils.utils import getModel
 		from django.db.models import Q
 		
 		logTask    = ''

@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_grpc_framework', '0035_auto_20210402_0031'),
+        ('django_socio_grpc', '0035_auto_20210402_0031'),
     ]
 
     operations = [

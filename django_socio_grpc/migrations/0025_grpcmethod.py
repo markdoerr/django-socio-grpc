@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_grpc_framework', '0024_auto_20210328_2025'),
+        ('django_socio_grpc', '0024_auto_20210328_2025'),
     ]
 
     operations = [
@@ -20,8 +20,8 @@ class Migration(migrations.Migration):
                 ('is_active', models.BooleanField(default=True)),
                 ('is_delete', models.BooleanField(default=False)),
                 ('method', models.CharField(choices=[('array', 'Array'), ('get', 'Single')], default='array', max_length=40)),
-                ('database', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_grpc_framework.grcpDataBases', verbose_name='Database Microservice')),
-                ('service', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_grpc_framework.grcpMicroServices', verbose_name='Socotec Microservice')),
+                ('database', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_socio_grpc.grcpDataBases', verbose_name='Database Microservice')),
+                ('service', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_socio_grpc.grcpMicroServices', verbose_name='Socotec Microservice')),
             ],
             options={
                 'verbose_name': 'GRPC SERVICE METHOD',

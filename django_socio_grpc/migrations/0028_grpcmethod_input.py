@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_grpc_framework', '0027_grpcmethod_is_update'),
+        ('django_socio_grpc', '0027_grpcmethod_is_update'),
     ]
 
     operations = [

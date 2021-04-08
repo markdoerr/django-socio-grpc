@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_grpc_framework', '0011_auto_20210327_1358'),
+        ('django_socio_grpc', '0011_auto_20210327_1358'),
     ]
 
     operations = [
@@ -23,8 +23,8 @@ class Migration(migrations.Migration):
                 ('is_query', models.BooleanField(default=False)),
                 ('field_sequence', models.IntegerField(default=1, verbose_name='Field Sequence')),
                 ('query_sequence', models.IntegerField(default=1, verbose_name='Query Sequence')),
-                ('database', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_grpc_framework.grcpDataBases', verbose_name='Microservice Protobuf')),
-                ('protobuf', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_grpc_framework.grcpProtoBuf', verbose_name='Microservice Database')),
+                ('database', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_socio_grpc.grcpDataBases', verbose_name='Microservice Protobuf')),
+                ('protobuf', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='django_socio_grpc.grcpProtoBuf', verbose_name='Microservice Database')),
             ],
             options={
                 'verbose_name': 'GRPC PROTOBUF FIELD',

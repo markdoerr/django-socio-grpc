@@ -53,7 +53,7 @@ class grcpErrorCode(TimestampedModel):
 	category = models.IntegerField(default=1, choices=ERROR_TYPE, verbose_name="Error Type")
 	
 	class Meta:
-		app_label = 'django_grpc_framework'   
+		app_label = 'django_socio_grpc'   
 		verbose_name = _('GRPC ERROR CODE')
 		verbose_name_plural = _('GRPC ERRORS CODES')
 	
@@ -86,7 +86,7 @@ class grcpMicroServices(TimestampedModel):
 	isInput     = models.BooleanField(default=False, verbose_name="Input Required")
 	
 	class Meta:
-		app_label = 'django_grpc_framework'   
+		app_label = 'django_socio_grpc'   
 		verbose_name = _('GRPC SERVICE REFERENCE')
 		verbose_name_plural = _('GRPC SERVICES REFERENCES')
 		
@@ -102,7 +102,7 @@ class grcpDataBases(TimestampedModel):
 	"""
     Official gRPC Socotec  Databases
 	"""
-	from utils.utils import getAppList, getModelList
+	from django_socio_grpc.utils.utils import getAppList, getModelList
 	
 	appChoices = getAppList()     # --  get Django application list ---
 	#modelChoices = getModelList()   # --  get Django Data Model list ---
@@ -113,7 +113,7 @@ class grcpDataBases(TimestampedModel):
 	service      = models.ForeignKey(grcpMicroServices, null=True, blank=True, on_delete=models.CASCADE, verbose_name="Socotec Microservice")    
 	
 	class Meta:
-		app_label = 'django_grpc_framework'   
+		app_label = 'django_socio_grpc'   
 		verbose_name = _('GRPC DATABASE')
 		verbose_name_plural = _('GRPC DATABASES')
 	
@@ -130,7 +130,7 @@ class socioGrpcErrors(TimestampedModel):
 	"""
 	
 	import datetime
-	from utils.utils import getFromCategory
+	from django_socio_grpc.utils.utils import getFromCategory
 
 	#(DEFAULT_CALL_TYPE, CALL_TYPE) = getFromCategory('CALL_TYPE',  application='GRPC')
 
@@ -157,7 +157,7 @@ class socioGrpcErrors(TimestampedModel):
 	elapse       = models.FloatField(default=0.00, verbose_name='Elapse Time (sec)')
 	
 	class Meta:
-		app_label = 'django_grpc_framework'   
+		app_label = 'django_socio_grpc'   
 		verbose_name = _('GRPC ERROR HANDLER')
 		verbose_name_plural = _('GRPC ERRORS HANDLER')
 	
@@ -208,7 +208,7 @@ class grpcLogging(TimestampedModel):
 	EventStore   = models.BooleanField(default=False) 
 	
 	class Meta:
-		app_label = 'django_grpc_framework'   
+		app_label = 'django_socio_grpc'   
 		verbose_name = _('GRPC LOGGING HANDLER')
 		verbose_name_plural = _('GRPC LOGGING HANDLER')
 	
@@ -250,7 +250,7 @@ class grpcMethod(TimestampedModel):
 	is_update    = models.BooleanField(default=False, verbose_name='Updade')
 	
 	class Meta:
-		app_label = 'django_grpc_framework'   
+		app_label = 'django_socio_grpc'   
 		verbose_name = _('GRPC SERVICE METHOD')
 		verbose_name_plural = _('GRPC SERVICES METHODS')
 	
@@ -268,7 +268,7 @@ class grcpProtoBuf(TimestampedModel):
 	service      = models.ForeignKey(grcpDataBases, null=True, blank=True, on_delete=models.CASCADE, verbose_name="Microservice Database")    
 	
 	class Meta:
-		app_label           = 'django_grpc_framework'   
+		app_label           = 'django_socio_grpc'   
 		verbose_name        = _('GRPC PROTOBUF')
 		verbose_name_plural = _('GRPC PROTOBUF')
 	
@@ -292,7 +292,7 @@ class grcpProtoBufFields(TimestampedModel):
 	query_sequence = models.IntegerField(default=1, verbose_name="Query Sequence" )
 	
 	class Meta:
-		app_label           = 'django_grpc_framework'   
+		app_label           = 'django_socio_grpc'   
 		verbose_name        = _('GRPC PROTOBUF FIELD')
 		verbose_name_plural = _('GRPC PROTOBUF FIELDS')
 	
@@ -328,7 +328,7 @@ class DBLogEntry(models.Model):
 
 	class Meta:
 		abstract = True
-		app_label = 'django_grpc_framework'
+		app_label = 'django_socio_grpc'
 		verbose_name = _('DJANGO SYSTEM LOG')
 		verbose_name_plural = _('DJANGO SYSTEM LOGS')
 

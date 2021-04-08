@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('django_grpc_framework', '0036_grpclogging_port'),
+        ('django_socio_grpc', '0036_grpclogging_port'),
     ]
 
     operations = [

@@ -192,3 +192,60 @@ def getFromCategory(categ,  order='sequence',  application=''):
 	return defaultValue,  returnList
 
 
+def getModelColumn(modelObject):
+	"""
+	extract Column List from a Data Model
+	"""
+	arrayCol = []
+	
+	colList =  modelObject._meta.get_fields(include_parents=False)   #  ---- get column list of the foreignkey Data Model ----
+	for eachCol in colList:
+		dicColInfo =  extractColData(eachCol)
+		arrayCol.append(dicColInfo)
+		
+	return arrayCol
+		
+		
+
+def extractColData(eachCol):
+	"""
+	extract main  characterostic of each column
+	"""
+
+	dicCol =  {}
+	name      =  eachCol.name
+	typeCol   =  eachCol.get_internal_type()
+	readonly  =  ''
+
+	# --------------------------------------------
+	# ----  extractcolumn lenght if available  ---
+	# --------------------------------------------
+	try:
+		length   =  eachCol.max_length
+		if not lenght:
+			length =  ''
+	except:
+		lenght =  ''
+
+	# --------------------------------------------
+	# ----  extract verbose Name if available  ---
+	# --------------------------------------------
+	try:
+		verboseLabel =  eachCol.verbose_name
+	except:
+		verboseLabel =  ''
+
+	# ----------------------------------------
+	#  ---- store characteristic of column ---
+	# ----------------------------------------
+	dicCol['column']     =  eachCol
+	dicCol['label']      =  verboseLabel
+	dicCol['name']       =  name
+	dicCol['length']     =  lenght
+	dicCol['type']       =  typeCol
+
+	return dicCol
+		
+	
+
+

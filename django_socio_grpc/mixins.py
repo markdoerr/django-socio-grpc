@@ -31,9 +31,16 @@ class ListModelMixin:
             This is a server streaming RPC.
         """
         queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset, many=True)
-        for message in serializer.message:
-            yield message
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            for message in serializer.message:
+                yield message
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+            for message in serializer.message:
+                yield message
 
 
 class RetrieveModelMixin:
@@ -64,7 +71,7 @@ class UpdateModelMixin:
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        if getattr(instance, '_prefetched_objects_cache', None):
+        if getattr(instance, "_prefetched_objects_cache", None):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
@@ -91,7 +98,7 @@ class PartialUpdateModelMixin:
         serializer.is_valid(raise_exception=True)
         self.perform_partial_update(serializer)
 
-        if getattr(instance, '_prefetched_objects_cache', None):
+        if getattr(instance, "_prefetched_objects_cache", None):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}

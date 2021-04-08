@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class DjangoGrpcFrameworkConfig(AppConfig):
-    name = 'django_grpc_framework'
-    verbose_name = "Django gRPC framework"
+class DjangoSocioGrpcConfig(AppConfig):
+    name = "django_socio_grpc"
+    verbose_name = "Django Socio gRPC"

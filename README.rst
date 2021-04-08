@@ -15,7 +15,11 @@ Requirements
 Quick start
 -----------
 
-1. Add ``django_socio_grpc`` to ``INSTALLED_APPS`` setting:
+.. code-block:: bash
+
+    $ pip install django-socio-grpc
+
+Add ``django_socio_grpc`` to ``INSTALLED_APPS`` setting:
 
 .. code-block:: python
 
@@ -27,6 +31,14 @@ Quick start
 
 Demo
 ----
+
+Here is a quick example of using gRPC framework to build a simple
+model-backed service for accessing users, startup a new project:
+
+.. code-block:: bash
+
+    $ django-admin startproject demo
+    $ python manage.py migrate
 
 Generate ``.proto`` file demo.proto_:
 
@@ -59,7 +71,7 @@ Now edit the ``demo/serializers.py`` module:
 .. code-block:: python
 
     from django.contrib.auth.models import User
-    from django_grpc_framework import generics, proto_serializers
+    from django_socio_grpc import generics, proto_serializers
     import demo_pb2
     import demo_pb2_grpc
 
@@ -82,7 +94,7 @@ Then edit the ``demo/services.py`` module:
 That's it, we're done!
 
 .. code-block:: bash
-    
+
     $ python manage.py grpcrunserver --dev
 
 You can now run a gRPC client to access the service:
@@ -93,3 +105,10 @@ You can now run a gRPC client to access the service:
         stub = demo_pb2_grpc.UserControllerStub(channel)
         for user in stub.List(demo_pb2.UserListRequest()):
             print(user, end='')
+
+Launch dev environnement
+------------
+
+.. code-block:: python
+    docker-compose up --build
+    docker-compose exec django-socio-grpc python test_utils/load_tests.py

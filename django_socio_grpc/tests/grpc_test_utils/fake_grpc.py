@@ -4,11 +4,23 @@
 """
 import asyncio
 import socket
+from contextlib import contextmanager
 
 import grpc
+from django.db import close_old_connections
 from asgiref.sync import async_to_sync, sync_to_async
 from grpc._cython.cygrpc import _Metadatum
+from django_socio_grpc.signals import grpc_request_started, grpc_request_finished
 
+@contextmanager
+def _disable_close_old_connections():
+    try:
+        grpc_request_started.disconnect(close_old_connections)
+        grpc_request_finished.disconnect(close_old_connections)
+        yield
+    finally:
+        grpc_request_started.connect(close_old_connections)
+        grpc_request_finished.connect(close_old_connections)
 
 class FakeServer(object):
     def __init__(self):
@@ -25,6 +37,7 @@ class FakeServer(object):
         pass
 
     def stop(self, grace=None):
+        print("server stop")
         pass
 
     def add_secure_port(self, target, server_credentials):
@@ -50,6 +63,10 @@ class FakeContext(object):
     def __init__(self):
         self.stream_pipe = []
         self._invocation_metadata = []
+        self.callback = None
+
+    def add_callback(self, callback):
+        self.callback = callback
 
     def abort(self, code, details):
         raise FakeRpcError(code, details)
@@ -66,6 +83,10 @@ class FakeContext(object):
 
 
 class FakeAsyncContext(FakeContext):
+
+    def add_done_callback(self, callback):
+        self.callback = callback
+
     async def abort(self, code, details):
         await sync_to_async(super().abort)(code, details)
 
@@ -98,28 +119,31 @@ class FakeChannel:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        print("exit fakeChannel")
+        self.context.callback()
         pass
 
     def fake_method(self, method_name, uri, *args, **kwargs):
-        handler = self.server.handlers[uri]
-        real_method = getattr(handler, method_name)
+        with _disable_close_old_connections():
+            handler = self.server.handlers[uri]
+            real_method = getattr(handler, method_name)
 
-        def fake_handler(request, metadata=None):
-            nonlocal real_method
-            self.context = FakeContext()
+            def fake_handler(request, metadata=None):
+                nonlocal real_method
+                self.context = FakeContext()
 
-            if asyncio.iscoroutinefunction(real_method):
-                real_method = async_to_sync(real_method)
-                self.context = FakeAsyncContext()
+                if asyncio.iscoroutinefunction(real_method):
+                    real_method = async_to_sync(real_method)
+                    self.context = FakeAsyncContext()
 
-            if metadata:
-                self.context._invocation_metadata.extend(
-                    (_Metadatum(k, v) for k, v in metadata)
-                )
+                if metadata:
+                    self.context._invocation_metadata.extend(
+                        (_Metadatum(k, v) for k, v in metadata)
+                    )
 
-            return real_method(request, self.context)
+                return real_method(request, self.context)
 
-        return fake_handler
+            return fake_handler
 
     def unary_unary(self, *args, **kwargs):
         return self.fake_method("unary_unary", *args, **kwargs)

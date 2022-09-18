@@ -1,6 +1,6 @@
 from django.core.validators import MaxLengthValidator
 from django.utils.translation import gettext as _
-from google.protobuf.pyext._message import RepeatedCompositeContainer
+# from google.protobuf.pyext._message import RepeatedCompositeContainer
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import SlugRelatedField
 from rest_framework.serializers import (
@@ -103,13 +103,15 @@ class ListProtoSerializer(ListSerializer, BaseProtoSerializer):
             message_list_attr = self.message_list_attr
 
         repeated_message = getattr(message, message_list_attr, "")
-        if not isinstance(repeated_message, RepeatedCompositeContainer):
-            error_message = self.default_error_messages["not_a_list"].format(
-                input_type=repeated_message.__class__.__name__
-            )
-            raise ValidationError(
-                {api_settings.NON_FIELD_ERRORS_KEY: [error_message]}, code="not_a_list"
-            )
+        print("icicicic\n"*10)
+        print(type(repeated_message))
+        # if not isinstance(repeated_message, RepeatedCompositeContainer):
+        #     error_message = self.default_error_messages["not_a_list"].format(
+        #         input_type=repeated_message.__class__.__name__
+        #     )
+        #     raise ValidationError(
+        #         {api_settings.NON_FIELD_ERRORS_KEY: [error_message]}, code="not_a_list"
+        #     )
         ret = []
         for item in repeated_message:
             ret.append(self.child.message_to_data(item))
@@ -130,10 +132,12 @@ class ListProtoSerializer(ListSerializer, BaseProtoSerializer):
         if getattr(self.child, "stream", False):
             return [self.child.data_to_message(item) for item in data]
         else:
+            print("lalalalalala\n"*10)
             response = self.child.Meta.proto_class_list()
             response_result_attr = getattr(
                 self.child.Meta, LIST_ATTR_MESSAGE_NAME, DEFAULT_LIST_FIELD_NAME
             )
+            print(type(getattr(response, response_result_attr)))
             getattr(response, response_result_attr).extend(
                 [self.child.data_to_message(item) for item in data]
             )

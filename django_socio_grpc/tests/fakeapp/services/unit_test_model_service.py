@@ -15,6 +15,10 @@ class UnitTestModelService(generics.AsyncModelService, mixins.AsyncStreamModelMi
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["title", "text"]
 
+    # async def Retrieve(self, request, context):
+    #     print("icicicici\n"*10)
+    #     print(request)
+
     @sync_to_async
     def _make(self, queryset, count):
         # INFO - AM - 14/01/2022 - query_fetched_datetime is an extra args in the custom request

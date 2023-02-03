@@ -12,12 +12,13 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
 from fakeapp.models import ForeignModel, UnitTestModel
 from fakeapp.services.unit_test_model_service import UnitTestModelService
 from freezegun import freeze_time
+from grpc import StatusCode
 
 from django_socio_grpc.tests.fakeapp.services.related_field_model_service import (
     RelatedFieldModelService,
 )
 
-from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC
+from .grpc_test_utils.fake_grpc import FakeFullAIOGRPC, FakeRpcError
 
 
 @override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})
@@ -152,6 +153,16 @@ class TestAsyncModelService(TestCase):
 
         instance = await UnitTestModel.objects.aget(id=response.id)
         assert instance.text is None
+
+    async def test_raise_not_found(self):
+        unit_id = 99999
+        grpc_stub = self.fake_grpc.get_fake_stub(UnitTestModelControllerStub)
+        request = fakeapp_pb2.UnitTestModelRetrieveRequest(id=unit_id)
+
+        with self.assertRaises(FakeRpcError) as fake_rpc_error:
+            await grpc_stub.Retrieve(request=request)
+            self.assertEqual(fake_rpc_error.code, StatusCode.NOT_FOUND)
+            self.assertEqual(fake_rpc_error.message, "UnitTestModel: 99999 not found!")
 
 
 @override_settings(GRPC_FRAMEWORK={"GRPC_ASYNC": True})

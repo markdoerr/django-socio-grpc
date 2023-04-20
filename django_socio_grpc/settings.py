@@ -71,6 +71,8 @@ DEFAULTS = {
         "PAGINATION": "PAGINATION",
         "FILTERS": "FILTERS",
     },
+    # Get extra data from service when using log middleware or processing exception in django-socio-grpc
+    "LOG_EXTRA_CONTEXT_FUNCTION": "django_socio_grpc.log.get_log_extra_context"
 }
 
 
@@ -82,6 +84,7 @@ IMPORT_STRINGS = [
     "DEFAULT_PAGINATION_CLASS",
     "DEFAULT_FILTER_BACKENDS",
     "LOGGING_ACTION",
+    "LOG_EXTRA_CONTEXT_FUNCTION"
 ]
 
 

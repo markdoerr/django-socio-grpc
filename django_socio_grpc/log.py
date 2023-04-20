@@ -11,6 +11,10 @@ import traceback
 from datetime import datetime
 
 from django_socio_grpc.settings import grpc_settings
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django_socio_grpc.generics import GenericService
 
 old_taceback_function = None
 
@@ -142,3 +146,13 @@ class GRPCHandler(logging.Handler):
 
 grpcHandler = GRPCHandler()
 grpcHandler.add_custom_print_exception()
+
+
+def get_log_extra_context(service: GenericService):
+    extra_context = {
+        "grpc_service_name": service.get_service_name(),
+        "grpc_action": service.action,
+    }
+    if hasattr(service.context, "user") and hasattr(service.context.user, "pk"):
+        extra_context["grpc_user_pk"] = service.context.user.pk
+    return extra_context

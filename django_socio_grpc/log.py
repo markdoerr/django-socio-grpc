@@ -148,7 +148,7 @@ grpcHandler = GRPCHandler()
 grpcHandler.add_custom_print_exception()
 
 
-def get_log_extra_context(service: GenericService):
+def get_log_extra_context(service: "GenericService"):
     extra_context = {
         "grpc_service_name": service.get_service_name(),
         "grpc_action": service.action,

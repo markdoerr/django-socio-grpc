@@ -181,7 +181,7 @@ class GenericService(services.Service):
         return queryset
     
     def get_log_extra_context(self):
-        print("get_log_extra_context ", request)
+        print("get_log_extra_context")
         return grpc_settings.LOG_EXTRA_CONTEXT_FUNCTION(self)
 
     @property

@@ -109,7 +109,6 @@ class MiddlewareCapable(metaclass=abc.ABCMeta):
 
 
 class ServicerProxy(MiddlewareCapable):
-
     """
     gRPC call
         ↓
@@ -240,20 +239,20 @@ class ServicerProxy(MiddlewareCapable):
 
     def process_exception(self, exc, request: GRPCRequestContainer):
         if isinstance(exc, GRPCException):
-            logger.error(exc.detail, exc_info=exc, extra=self.get_log_extra_context(request))
+            logger.error(exc.detail, exc_info=exc, extra=request.service.get_log_extra_context())
             request.context.abort(exc.status_code, exc.get_full_details())
         elif isinstance(exc, grpc.RpcError) or request.context._state.aborted:
             raise exc
         else:
-            logger.error(f"{type(exc).__name__} : {exc}", exc_info=exc, extra=self.get_log_extra_context(request))
+            logger.error(f"{type(exc).__name__} : {exc}", exc_info=exc, extra=request.service.get_log_extra_context())
             request.context.abort(grpc.StatusCode.UNKNOWN, str(exc))
 
     async def async_process_exception(self, exc, request: GRPCRequestContainer):
         if isinstance(exc, GRPCException):
-            logger.error(exc.detail, exc_info=exc, extra=self.get_log_extra_context(request))
+            logger.error(exc.detail, exc_info=exc, extra=request.service.get_log_extra_context())
             await request.context.abort(exc.status_code, exc.get_full_details())
         elif isinstance(exc, (grpc.RpcError, grpc.aio.AbortError)):
             raise exc
         else:
-            logger.error(f"{type(exc).__name__} : {exc}", exc_info=exc, extra=self.get_log_extra_context(request))
+            logger.error(f"{type(exc).__name__} : {exc}", exc_info=exc, extra=request.service.get_log_extra_context())
             await request.context.abort(grpc.StatusCode.UNKNOWN, str(exc))

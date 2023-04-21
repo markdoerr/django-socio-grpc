@@ -62,11 +62,8 @@ def _log_requests(request: GRPCRequestContainer):
         f"{request.service.__class__.__name__}.{request.action}"
         not in grpc_settings.IGNORE_LOG_FOR_ACTION
     ):
-        print("_log_requests\n"*10)
-        print(request.service)
-        print(request.service.__dict__)
         logger.info(
-            f"Receive action {request.action} on service {request.service.__class__.__name__}", extra=request.service.get_log_extra_context(request)
+            f"Receive action {request.action} on service {request.service.__class__.__name__}", extra=request.service.get_log_extra_context()
         )
 
 

@@ -21,6 +21,8 @@ GRPC_FRAMEWORK = {
     'IGNORE_LOG_FOR_ACTION': ['Service1.Action1', 'Service1.Action1'],
 
     'ROOT_GRPC_FOLDER': 'my_grpc_folder'
+
+    "LOG_EXTRA_CONTEXT_FUNCTION": 'django_socio_grpc.log.get_log_extra_context'
 }
 
 This module provides the `grpc_setting` object, that is used to access

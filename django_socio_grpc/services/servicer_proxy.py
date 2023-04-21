@@ -32,17 +32,7 @@ class GRPCRequestContainer:
     context: GRPCSocioProxyContext
     action: str
     service: "Service"
-
-    COOKIES = {}
-
-    # def __init__(self, message: Message, context: GRPCSocioProxyContext, action: str, service: "Service"):
-    #     print("INIIIIIIIIIIIIIIIIIIIIIIIIIIIIIT")
-    #     self.message = message
-    #     self.context = context
-    #     self.action = action
-    #     self.service = service
-    #     print(self.action)
-
+    
     def __getattr__(self, attr):
         if attr in self.__annotations__:
             return super().__getattr__(attr)
@@ -179,10 +169,6 @@ class ServicerProxy(MiddlewareCapable):
                 request,
                 self.async_process_exception,
             )
-            print("ICICICICIC2\n"*10, type(response))
-            # def fake(test, test2):
-            #     return False
-            # setattr(response, "has_header", fake)
             response = GRPCSocioProxyResponse(response)
             return response
         finally:
@@ -212,10 +198,6 @@ class ServicerProxy(MiddlewareCapable):
             response = await safe_async_response(
                 self._middleware_chain, request, self.async_process_exception
             )
-            print("ICICICICIC\n"*10, type(response))
-            def fake(test, test2):
-                return False
-            setattr(response, "has_header", fake)
             return response.grpc_response
 
         return handler

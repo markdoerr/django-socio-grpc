@@ -105,19 +105,17 @@ def locale_middleware(get_response):
 
 
 @sync_and_async_middleware
-def response_transformater(get_response):
+def auth_without_session_middleware(get_response):
     if asyncio.iscoroutinefunction(get_response):
 
         async def middleware(request: GRPCRequestContainer):
-            response = await safe_async_response(get_response, request)
-            print("MIDDLEWARE RESPONSE ASYNC\n"*20, type(response))
-            return response
+            request.service.perform_authentication()
+            return await safe_async_response(get_response, request)
 
     else:
 
         def middleware(request: GRPCRequestContainer):
-            response = get_response(request)
-            print("MIDDLEWARE RESPONSE SYNC\n"*20, type(response))
-            return response
+            request.service.perform_authentication()
+            return get_response(request)
 
     return middleware

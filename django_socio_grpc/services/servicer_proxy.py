@@ -16,6 +16,7 @@ from django_socio_grpc.exceptions import GRPCException, Unimplemented
 from django_socio_grpc.log import GRPCHandler
 from django_socio_grpc.request_transformer.grpc_socio_proxy_context import (
     GRPCSocioProxyContext,
+    GRPCSocioProxyResponse,
 )
 from django_socio_grpc.settings import grpc_settings
 from django_socio_grpc.utils.utils import isgeneratorfunction, safe_async_response
@@ -173,11 +174,17 @@ class ServicerProxy(MiddlewareCapable):
 
         try:
             await request.service.before_action()
-            return await safe_async_response(
+            response = await safe_async_response(
                 wrapped_action,
                 request,
                 self.async_process_exception,
             )
+            print("ICICICICIC2\n"*10, type(response))
+            # def fake(test, test2):
+            #     return False
+            # setattr(response, "has_header", fake)
+            response = GRPCSocioProxyResponse(response)
+            return response
         finally:
             await request.service.after_action()
 
@@ -205,7 +212,11 @@ class ServicerProxy(MiddlewareCapable):
             response = await safe_async_response(
                 self._middleware_chain, request, self.async_process_exception
             )
-            return response
+            print("ICICICICIC\n"*10, type(response))
+            def fake(test, test2):
+                return False
+            setattr(response, "has_header", fake)
+            return response.grpc_response
 
         return handler
 
@@ -217,7 +228,9 @@ class ServicerProxy(MiddlewareCapable):
             )
             request = GRPCRequestContainer(request, proxy_context, action, service_instance)
             try:
-                return self._middleware_chain(request)
+                response = self._middleware_chain(request)
+                print("LALALALAALALLALA\n"*10, type(response))
+                return response
             except Exception as e:
                 self.process_exception(e, request)
 

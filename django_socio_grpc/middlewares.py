@@ -32,6 +32,7 @@ def _close_old_connections():
 
 @sync_and_async_middleware
 def close_old_connections_middleware(get_response):
+    print("close_old_connections_middleware\n"*10)
     if asyncio.iscoroutinefunction(get_response):
 
         async def middleware(request: GRPCRequestContainer):
@@ -99,5 +100,24 @@ def locale_middleware(get_response):
             language = get_language_from_request(request.context)
             translation.activate(language)
             return get_response(request)
+
+    return middleware
+
+
+@sync_and_async_middleware
+def response_transformater(get_response):
+    if asyncio.iscoroutinefunction(get_response):
+
+        async def middleware(request: GRPCRequestContainer):
+            response = await safe_async_response(get_response, request)
+            print("MIDDLEWARE RESPONSE ASYNC\n"*20, type(response))
+            return response
+
+    else:
+
+        def middleware(request: GRPCRequestContainer):
+            response = get_response(request)
+            print("MIDDLEWARE RESPONSE SYNC\n"*20, type(response))
+            return response
 
     return middleware

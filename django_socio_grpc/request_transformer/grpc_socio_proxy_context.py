@@ -92,3 +92,27 @@ class GRPCSocioProxyContext:
             return getattr(self.proxy_http_request, attr)
         else:
             return super().__getattr__(attr)
+
+
+class GRPCSocioProxyResponse:
+    """Proxy context, provide http1 proxy request object
+    and grpc context object"""
+
+    def __init__(self, grpc_response):
+        self.grpc_response = grpc_response
+
+        self.headers = {}
+
+    def has_header(self, header_name):
+        return False
+
+    def __getattr__(self, attr):
+        print("GRPCSocioProxyResponse", attr)
+        if hasattr(self.grpc_response, attr):
+            return getattr(self.grpc_response, attr)
+        else:
+            print(type(super()))
+            return object.__getattribute__(self, attr)
+    
+    def __call__(self, *args, **kwds):
+        pass

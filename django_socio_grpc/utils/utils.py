@@ -15,6 +15,11 @@ async def safe_async_response(fn, request: "GRPCRequestContainer", process_excep
     """Allows to use async generator as response."""
     response = fn(request)
 
+    # print("ICICICICIC\n"*10, type(response))
+    # def fake(test, test2):
+    #     return False
+    # setattr(response, "has_header", fake)
+
     if inspect.isasyncgen(response):
 
         async def async_generator():

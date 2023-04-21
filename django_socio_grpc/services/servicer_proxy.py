@@ -25,7 +25,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("django_socio_grpc")
 
-
 @dataclass
 class GRPCRequestContainer:
     message: Message
@@ -33,19 +32,26 @@ class GRPCRequestContainer:
     action: str
     service: "Service"
 
+    # def __init__(self, message: Message, context: GRPCSocioProxyContext, action: str, service: "Service"):
+    #     print("INIIIIIIIIIIIIIIIIIIIIIIIIIIIIIT")
+    #     self.message = message
+    #     self.context = context
+    #     self.action = action
+    #     self.service = service
+    #     print(self.action)
+
     def __getattr__(self, attr):
-        # print(self.context)
         try:
-            print(attr, self.__annotations__)
             if attr in self.__annotations__:
-                return object.__getattribute__(self, attr)
+                return super().__getattr__(attr)
             return getattr(self.context, attr)
         except AttributeError:
             return object.__getattribute__(self, attr)
         
     def __setattr__(self, attr: str, value: Any) -> None:
-        if attr in self.__dict__:
-            return super().__setattr__(self, attr, value)
+        print(attr, self.__annotations__)
+        if attr in self.__annotations__:
+            return super().__setattr__(attr, value)
         else:
             setattr(self.context.grpc_context, attr, value)
 

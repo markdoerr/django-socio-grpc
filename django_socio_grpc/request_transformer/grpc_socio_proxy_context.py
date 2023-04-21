@@ -86,10 +86,9 @@ class GRPCSocioProxyContext:
         self.proxy_http_request = SocioProxyHttpRequest(self, grpc_action)
 
     def __getattr__(self, attr):
-        try:
-            if hasattr(self.grpc_context, attr):
-                return getattr(self.grpc_context, attr)
-            if hasattr(self.proxy_http_request, attr):
-                return getattr(self.proxy_http_request, attr)
-        except AttributeError:
-            return self.__getattribute__(attr)
+        if hasattr(self.grpc_context, attr):
+            return getattr(self.grpc_context, attr)
+        if hasattr(self.proxy_http_request, attr):
+            return getattr(self.proxy_http_request, attr)
+        else:
+            return super().__getattr__(attr)

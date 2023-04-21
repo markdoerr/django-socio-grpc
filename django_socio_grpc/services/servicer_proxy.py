@@ -2,7 +2,7 @@ import abc
 import asyncio
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING, Any, Type
 
 import grpc
 from asgiref.sync import async_to_sync
@@ -32,6 +32,22 @@ class GRPCRequestContainer:
     context: GRPCSocioProxyContext
     action: str
     service: "Service"
+
+    def __getattr__(self, attr):
+        # print(self.context)
+        try:
+            print(attr, self.__annotations__)
+            if attr in self.__annotations__:
+                return object.__getattribute__(self, attr)
+            return getattr(self.context, attr)
+        except AttributeError:
+            return object.__getattribute__(self, attr)
+        
+    def __setattr__(self, attr: str, value: Any) -> None:
+        if attr in self.__dict__:
+            return super().__setattr__(self, attr, value)
+        else:
+            setattr(self.context.grpc_context, attr, value)
 
 
 class MiddlewareCapable(metaclass=abc.ABCMeta):

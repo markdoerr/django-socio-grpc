@@ -9,9 +9,9 @@ import sys
 import threading
 import traceback
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from django_socio_grpc.settings import grpc_settings
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from django_socio_grpc.generics import GenericService
@@ -131,24 +131,8 @@ class GRPCHandler(logging.Handler):
 
         return (pathname, lineno, func_name)
 
-    def add_custom_print_exception(self):
-        global old_taceback_function
-        old_taceback_function = traceback.print_exception
 
-        # INFO - AM - Compatibility with python 3.5 -> 3.9, Before 3.10 exec is e_type. Be carreful when working with it. TODO whe dropping <3.10 support replace value and tb by exc
-        def custom_print_exception(
-            exc, value=None, tb=None, limit=None, file=None, chain=True
-        ):
-            self.log_unhandled_exception(exc, value=value, tb=tb)
-
-        traceback.print_exception = custom_print_exception
-
-
-grpcHandler = GRPCHandler()
-grpcHandler.add_custom_print_exception()
-
-
-def get_log_extra_context(service: "GenericService"):
+def default_get_log_extra_context(service: "GenericService"):
     extra_context = {
         "grpc_service_name": service.get_service_name(),
         "grpc_action": service.action,

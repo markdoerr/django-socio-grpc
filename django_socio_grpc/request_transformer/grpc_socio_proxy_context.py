@@ -1,5 +1,7 @@
 import json
 
+from grpc._typing import ResponseType
+
 from django_socio_grpc.settings import grpc_settings
 
 
@@ -99,7 +101,7 @@ class GRPCSocioProxyResponse:
     and grpc context object"""
 
     def __init__(self, grpc_response):
-        self.grpc_response = grpc_response
+        self.grpc_response: ResponseType = grpc_response
 
         self.headers = {}
 
@@ -107,12 +109,24 @@ class GRPCSocioProxyResponse:
         return False
 
     def __getattr__(self, attr):
-        print("GRPCSocioProxyResponse", attr)
         if hasattr(self.grpc_response, attr):
             return getattr(self.grpc_response, attr)
         else:
-            print(type(super()))
             return object.__getattribute__(self, attr)
-    
+
     def __call__(self, *args, **kwds):
         pass
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        next_item = await self.grpc_response.__anext__()
+        return GRPCSocioProxyResponse(next_item)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        next_item = self.grpc_response.__next__()
+        return GRPCSocioProxyResponse(next_item)

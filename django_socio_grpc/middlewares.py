@@ -32,7 +32,6 @@ def _close_old_connections():
 
 @sync_and_async_middleware
 def close_old_connections_middleware(get_response):
-    print("close_old_connections_middleware\n"*10)
     if asyncio.iscoroutinefunction(get_response):
 
         async def middleware(request: GRPCRequestContainer):
@@ -64,7 +63,8 @@ def _log_requests(request: GRPCRequestContainer):
         not in grpc_settings.IGNORE_LOG_FOR_ACTION
     ):
         logger.info(
-            f"Receive action {request.action} on service {request.service.__class__.__name__}", extra=request.service.get_log_extra_context()
+            f"Receive action {request.action} on service {request.service.__class__.__name__}",
+            extra=request.service.get_log_extra_context(),
         )
 
 

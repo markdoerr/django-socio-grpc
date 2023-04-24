@@ -134,6 +134,9 @@ class Service(GRPCActionMixin):
             return self._async_after_action()
         return self._after_action()
 
+    def get_log_extra_context(self):
+        return grpc_settings.LOG_EXTRA_CONTEXT_FUNCTION(self)
+
     @classmethod
     def as_servicer(cls, **initkwargs):
         """

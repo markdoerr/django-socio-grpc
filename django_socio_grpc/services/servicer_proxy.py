@@ -2,7 +2,7 @@ import abc
 import asyncio
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING, Any, AsyncIterable, Awaitable, Callable, Type
 
 import grpc
 from asgiref.sync import async_to_sync
@@ -11,9 +11,9 @@ from django.core.exceptions import ImproperlyConfigured, MiddlewareNotUsed
 from django.core.handlers.base import BaseHandler
 from django.utils.module_loading import import_string
 from google.protobuf.message import Message
+from grpc._typing import RequestType, ResponseType
 
 from django_socio_grpc.exceptions import GRPCException, Unimplemented
-from django_socio_grpc.log import GRPCHandler
 from django_socio_grpc.request_transformer.grpc_socio_proxy_context import (
     GRPCSocioProxyContext,
     GRPCSocioProxyResponse,
@@ -26,18 +26,19 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("django_socio_grpc")
 
+
 @dataclass
 class GRPCRequestContainer:
-    message: Message
+    message: RequestType
     context: GRPCSocioProxyContext
     action: str
     service: "Service"
-    
+
     def __getattr__(self, attr):
         if attr in self.__annotations__:
             return super().__getattr__(attr)
         return getattr(self.context, attr)
-        
+
     def __setattr__(self, attr: str, value: Any) -> None:
         if attr in self.__annotations__:
             return super().__setattr__(attr, value)
@@ -146,19 +147,23 @@ class ServicerProxy(MiddlewareCapable):
 
         self.load_middleware(is_async=grpc_settings.GRPC_ASYNC)
 
-    def _get_response(self, request: GRPCRequestContainer):
+    def _get_response(self, request: GRPCRequestContainer) -> GRPCSocioProxyResponse:
         action = getattr(request.service, request.action)
         if asyncio.iscoroutinefunction(action):
             action = async_to_sync(action)
         try:
             request.service.before_action()
-            return action(request.message, request.context)
+            response = action(request.message, request.context)
+            response = GRPCSocioProxyResponse(response)
+            return response
         except Exception as e:
             self.process_exception(e, request)
         finally:
             request.service.after_action()
 
-    async def _get_response_async(self, request: GRPCRequestContainer):
+    async def _get_response_async(
+        self, request: GRPCRequestContainer
+    ) -> GRPCSocioProxyResponse:
         def wrapped_action(request: GRPCRequestContainer):
             return getattr(request.service, request.action)(request.message, request.context)
 
@@ -174,8 +179,8 @@ class ServicerProxy(MiddlewareCapable):
         finally:
             await request.service.after_action()
 
-    def _get_async_stream_handler(self, action: str):
-        async def handler(request: Message, context):
+    def _get_async_stream_handler(self, action: str) -> Awaitable[Callable]:
+        async def handler(request: Message, context) -> AsyncIterable[ResponseType]:
             proxy_context = GRPCSocioProxyContext(context, action)
             service_instance = self.create_service(
                 request=request, context=proxy_context, action=action
@@ -184,12 +189,12 @@ class ServicerProxy(MiddlewareCapable):
             async for response in await safe_async_response(
                 self._middleware_chain, request, self.async_process_exception
             ):
-                yield response
+                yield response.grpc_response
 
         return handler
 
-    def _get_async_handler(self, action: str):
-        async def handler(request: Message, context):
+    def _get_async_handler(self, action: str) -> Awaitable[Callable]:
+        async def handler(request: Message, context) -> Awaitable[ResponseType]:
             proxy_context = GRPCSocioProxyContext(context, action)
             service_instance = self.create_service(
                 request=request, context=proxy_context, action=action
@@ -202,8 +207,8 @@ class ServicerProxy(MiddlewareCapable):
 
         return handler
 
-    def _get_handler(self, action: str):
-        def handler(request: Message, context):
+    def _get_handler(self, action: str) -> Callable:
+        def handler(request: Message, context) -> ResponseType:
             proxy_context = GRPCSocioProxyContext(context, action)
             service_instance = self.create_service(
                 request=request, context=proxy_context, action=action
@@ -211,28 +216,28 @@ class ServicerProxy(MiddlewareCapable):
             request = GRPCRequestContainer(request, proxy_context, action, service_instance)
             try:
                 response = self._middleware_chain(request)
-                print("LALALALAALALLALA\n"*10, type(response))
-                return response
+                return response.grpc_response
             except Exception as e:
                 self.process_exception(e, request)
 
         return handler
 
-    def _get_stream_handler(self, action: str):
-        def handler(request: Message, context):
+    def _get_stream_handler(self, action: str) -> Callable:
+        def handler(request: Message, context) -> AsyncIterable[ResponseType]:
             proxy_context = GRPCSocioProxyContext(context, action)
             service_instance = self.create_service(
                 request=request, context=proxy_context, action=action
             )
             request = GRPCRequestContainer(request, proxy_context, action, service_instance)
             try:
-                yield from self._middleware_chain(request)
+                for response in self._middleware_chain(request):
+                    yield response.grpc_response
             except Exception as e:
                 self.process_exception(e, request)
 
         return handler
 
-    def get_handler(self, action: str):
+    def get_handler(self, action: str) -> ResponseType:
         service_action = getattr(self.service_class, action)
 
         if grpc_settings.GRPC_ASYNC:
@@ -255,20 +260,32 @@ class ServicerProxy(MiddlewareCapable):
 
     def process_exception(self, exc, request: GRPCRequestContainer):
         if isinstance(exc, GRPCException):
-            logger.error(exc.detail, exc_info=exc, extra=request.service.get_log_extra_context())
+            logger.error(
+                exc.detail, exc_info=exc, extra=request.service.get_log_extra_context()
+            )
             request.context.abort(exc.status_code, exc.get_full_details())
         elif isinstance(exc, grpc.RpcError) or request.context._state.aborted:
             raise exc
         else:
-            logger.error(f"{type(exc).__name__} : {exc}", exc_info=exc, extra=request.service.get_log_extra_context())
+            logger.error(
+                f"{type(exc).__name__} : {exc}",
+                exc_info=exc,
+                extra=request.service.get_log_extra_context(),
+            )
             request.context.abort(grpc.StatusCode.UNKNOWN, str(exc))
 
     async def async_process_exception(self, exc, request: GRPCRequestContainer):
         if isinstance(exc, GRPCException):
-            logger.error(exc.detail, exc_info=exc, extra=request.service.get_log_extra_context())
+            logger.error(
+                exc.detail, exc_info=exc, extra=request.service.get_log_extra_context()
+            )
             await request.context.abort(exc.status_code, exc.get_full_details())
         elif isinstance(exc, (grpc.RpcError, grpc.aio.AbortError)):
             raise exc
         else:
-            logger.error(f"{type(exc).__name__} : {exc}", exc_info=exc, extra=request.service.get_log_extra_context())
+            logger.error(
+                f"{type(exc).__name__} : {exc}",
+                exc_info=exc,
+                extra=request.service.get_log_extra_context(),
+            )
             await request.context.abort(grpc.StatusCode.UNKNOWN, str(exc))

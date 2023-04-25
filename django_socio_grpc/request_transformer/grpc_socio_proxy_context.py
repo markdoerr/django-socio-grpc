@@ -26,6 +26,9 @@ class SocioProxyHttpRequest:
 
     def __init__(self, grpc_context, grpc_action):
 
+        self.user = None
+        self.auth = None
+
         self.grpc_request_metadata = self.convert_metadata_to_dict(
             grpc_context.invocation_metadata()
         )
@@ -93,7 +96,7 @@ class GRPCSocioProxyContext:
         if hasattr(self.proxy_http_request, attr):
             return getattr(self.proxy_http_request, attr)
         else:
-            return super().__getattr__(attr)
+            return object.__getattribute__(self, attr)
 
 
 class GRPCSocioProxyResponse:

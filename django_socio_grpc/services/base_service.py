@@ -33,12 +33,16 @@ class Service(GRPCActionMixin):
 
     _servicer_proxy: Type[ServicerProxy] = ServicerProxy
 
+    _is_auth_performed: bool = False
+
     def __init__(self, **kwargs):
         """
         Set kwargs as self attributes.
         """
         for key, value in kwargs.items():
             setattr(self, key, value)
+        # INFO - AM - 25/04/2023 - This is needed for test_authentication unit tests as it is call betwen each tests. If disturbing can be change in test_authentication directly or change the way the test is configured.
+        self._is_auth_performed = False
 
     @classmethod
     def get_service_name(cls):
@@ -48,19 +52,22 @@ class Service(GRPCActionMixin):
     def get_controller_name(cls):
         return f"{cls.get_service_name()}Controller"
 
-    def perform_authentication(self):
+    def perform_authentication(self, force=False):
+        if self._is_auth_performed:
+            return
         user_auth_tuple = None
         try:
             user_auth_tuple = self.resolve_user()
         except Exception as e:
             raise Unauthenticated(detail=e)
+
         if not user_auth_tuple:
             self.context.user = None
             self.context.auth = None
-            return
-
-        self.context.user = user_auth_tuple[0]
-        self.context.auth = user_auth_tuple[1]
+        else:
+            self.context.user = user_auth_tuple[0]
+            self.context.auth = user_auth_tuple[1]
+        self._is_auth_performed = True
 
     def resolve_user(self):
         auth_responses = [

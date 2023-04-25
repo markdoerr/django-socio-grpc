@@ -1,11 +1,12 @@
 import json
 
-from grpc._typing import ResponseType
+from grpc._typing import ResponseType, RequestType
 
 from django_socio_grpc.settings import grpc_settings
+from dataclasses import dataclass
 
 
-class SocioProxyHttpRequest:
+class SocioHttpRequest:
     HEADERS_KEY = "HEADERS"
     MAP_HEADERS = {
         "AUTHORIZATION": "HTTP_AUTHORIZATION",
@@ -81,44 +82,58 @@ class SocioProxyHttpRequest:
     def grpc_action_to_http_method_name(self, grpc_action):
         return self.METHOD_MAP.get(grpc_action, None)
 
+class SocioHttpResponse:
+    self.headers = {}
 
-class GRPCSocioProxyContext:
-    """Proxy context, provide http1 proxy request object
-    and grpc context object"""
-
-    def __init__(self, grpc_context, grpc_action):
-        self.grpc_context = grpc_context
-        self.proxy_http_request = SocioProxyHttpRequest(self, grpc_action)
-
-    def __getattr__(self, attr):
-        if hasattr(self.grpc_context, attr):
-            return getattr(self.grpc_context, attr)
-        if hasattr(self.proxy_http_request, attr):
-            return getattr(self.proxy_http_request, attr)
-        else:
-            return object.__getattribute__(self, attr)
-
-
-class GRPCSocioProxyResponse:
-    """Proxy context, provide http1 proxy request object
-    and grpc context object"""
-
-    def __init__(self, grpc_response):
-        self.grpc_response: ResponseType = grpc_response
-
-        self.headers = {}
 
     def has_header(self, header_name):
         return False
 
+
+@dataclass
+class GRPCAndHTTPRequest:
+    """Proxy context, provide http1 proxy request object
+    and grpc context object"""
+    grpc_request: RequestType
+    context: GRPCSocioProxyContext
+    action: str
+    service: "Service"
+    http_request: SocioHttpRequest = None
+
+    def __post_init__(self):
+        
+        self.http_request = SocioHttpRequest(self, self.action)
+
     def __getattr__(self, attr):
-        if hasattr(self.grpc_response, attr):
-            return getattr(self.grpc_response, attr)
+        if attr in self.__annotations__:
+            return super().__getattr__(attr)
+        if hasattr(self.grpc_context, attr):
+            return getattr(self.grpc_context, attr)
+        if hasattr(self.http_request, attr):
+            return getattr(self.http_request, attr)
         else:
             return object.__getattribute__(self, attr)
 
-    def __call__(self, *args, **kwds):
-        pass
+
+@dataclass
+class GRPCAndHTTPResponse:
+    """Proxy context, provide http1 proxy request object
+    and grpc context object"""
+    grpc_response: ResponseType
+    http_response: SocioHttpResponsee = None
+
+    def __post_init__(self, grpc_response):
+        self.http_response = SocioHttpResponse(self)
+
+    def __getattr__(self, attr):
+        if attr in self.__annotations__:
+            return super().__getattr__(attr)
+        if hasattr(self.grpc_response, attr):
+            return getattr(self.grpc_context, attr)
+        if hasattr(self.http_response, attr):
+            return getattr(self.http_request, attr)
+        else:
+            return object.__getattribute__(self, attr)
 
     def __aiter__(self):
         return self
